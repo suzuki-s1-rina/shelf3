@@ -6,8 +6,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.List;
 
 import main.item.Book;
 import main.item.Cd;
@@ -84,7 +82,7 @@ public class ConnectMySQL {
 	/*
 	 * 表示用データを取得
 	 */
-	public static List<Production> getBookData(String sql) {
+	public static Production[] getBookData(String sql, int count) {
 		try {
 			//データベース接続
 			Connection connection = DriverManager.getConnection(URL, USERNAME, PASSWORD);
@@ -93,7 +91,8 @@ public class ConnectMySQL {
 			// クエリーを実行して結果セットを取得
 			ResultSet rs = ps.executeQuery();
 			// 検索された行数分ループ
-			List<Production> bookList = new ArrayList<>();
+			Production[] books = new Production[count];
+			int num = 0;
 			while (rs.next()) { //最初は空行なので初回nextしてデータ行へ移る。
 				Book book = new Book();
 				// titleデータを取得
@@ -107,11 +106,12 @@ public class ConnectMySQL {
 				book.setId(id);
 				// データの表示
 				System.out.println("title;" + " " + title + ", author;" + " " + author);
-				bookList.add(book);
+				books[num] = book;
+				num++;
 			}
 			//データベースのクローズ
 			connection.close();
-			return bookList;
+			return books;
 		} catch (SQLException e) {
 			e.printStackTrace();
 			return null;
@@ -121,7 +121,7 @@ public class ConnectMySQL {
 	/*
 	 * 表示用データを取得
 	 */
-	public static List<Production> getCdData(String sql) {
+	public static Production[] getCdData(String sql, int count) {
 		try {
 			//データベース接続
 			Connection connection = DriverManager.getConnection(URL, USERNAME, PASSWORD);
@@ -130,7 +130,8 @@ public class ConnectMySQL {
 			// クエリーを実行して結果セットを取得
 			ResultSet rs = ps.executeQuery();
 			// 検索された行数分ループ
-			List<Production> cdList = new ArrayList<>();
+			Production[] cds = new Production[count];
+			int num = 0;
 			while (rs.next()) { //最初は空行なので初回nextしてデータ行へ移る。
 				Cd cd = new Cd();
 				// titleデータを取得
@@ -144,11 +145,12 @@ public class ConnectMySQL {
 				cd.setId(id);
 				// データの表示
 				System.out.println("song;" + " " + song + ", singer;" + " " + singer);
-				cdList.add(cd);
+				cds[num] = cd;
+				num++;
 			}
 			//データベースのクローズ
 			connection.close();
-			return cdList;
+			return cds;
 		} catch (SQLException e) {
 			e.printStackTrace();
 			return null;

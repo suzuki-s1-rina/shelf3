@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.List;
 
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
@@ -183,7 +182,6 @@ public class ShelfManager extends JPanel {
 			this.add(selectsDeleteBtn);
 			this.setBackground(Color.getHSBColor(0.16f, 0.7f, 0.8f));
 		}
-
 	}
 
 	/*
@@ -441,11 +439,9 @@ public class ShelfManager extends JPanel {
 			}
 			// 設定されているIDを引数に削除する。
 			String id = bookModel.getValueAt(index, ID_ROW_NUMBER).toString();
-			if (!id.isEmpty()) {
-				if (shelf[0].deleteData(id)) {
-					return true;
-				}
-				return false;
+
+			if (shelf[0].deleteData(id)) {
+				return true;
 			} else {
 				JOptionPane.showMessageDialog(null, "削除できる本はありません。");
 				return false;
@@ -459,11 +455,9 @@ public class ShelfManager extends JPanel {
 			}
 			// 設定されているIDを引数に削除する。
 			String id = cdModel.getValueAt(index, ID_ROW_NUMBER).toString();
-			if (!id.isEmpty()) {
-				if (shelf[1].deleteData(id)) {
-					return true;
-				}
-				return false;
+
+			if (shelf[1].deleteData(id)) {
+				return true;
 			} else {
 				JOptionPane.showMessageDialog(null, "削除できるCDはありません。");
 				return false;
@@ -479,27 +473,18 @@ public class ShelfManager extends JPanel {
 
 		// テーブルの列名及び設定用の値作成
 		String[] bookColumnNames = { "No", "題名", "著者", "ID" };
-		String bookTableData[][] = new String[BookShelf.MAX_BOOKS_SIZE][bookColumnNames.length];
-
 		// 登録されている本の数
 		int bookCount = shelf[0].countData();
+		String bookTableData[][] = new String[bookCount][bookColumnNames.length];
+
 		// DBから本棚のデータを取得
-		List<Production> bookList = shelf[0].getData();
+		Production[] books = shelf[0].getData(bookCount);
 		for (int cnt = 0; cnt < bookCount; cnt++) {
 			bookTableData[cnt][0] = String.valueOf(cnt + 1); // No
-			bookTableData[cnt][1] = bookList.get(cnt).getTitle(); // 題名
-			bookTableData[cnt][2] = bookList.get(cnt).getPerson(); // 著者
+			bookTableData[cnt][1] = books[cnt].getTitle(); // 題名
+			bookTableData[cnt][2] = books[cnt].getPerson(); // 著者
 			// 表示はしないが、idを削除用に設定する
-			bookTableData[cnt][3] = bookList.get(cnt).getId(); // ID
-		}
-
-		// 空棚の設定
-		for (int cnt = bookCount; cnt < BookShelf.MAX_BOOKS_SIZE; cnt++) {
-			bookTableData[cnt][0] = String.valueOf(cnt + 1); // No
-			bookTableData[cnt][1] = ""; // 題名
-			bookTableData[cnt][2] = ""; // 著者
-			bookTableData[cnt][3] = ""; // ID
-
+			bookTableData[cnt][3] = books[cnt].getId(); // ID
 		}
 
 		// 情報作成
@@ -516,26 +501,21 @@ public class ShelfManager extends JPanel {
 
 		// テーブルの列名及び設定用の値作成
 		String[] cdColumnNames = { "No", "曲名", "歌手", "ID" };
-		String cdTableData[][] = new String[CdShelf.MAX_CDS_SIZE][cdColumnNames.length];
+		int cdCount = 0;
+		Production[] cds = null;
+		cdCount = shelf[1].countData();
+		String cdTableData[][] = new String[cdCount][cdColumnNames.length];
 
 		// 登録されているCDの数
-		int cdCount = shelf[1].countData();
+
 		// DBからCD棚のデータを取得
-		List<Production> cdList = shelf[1].getData();
+		cds = shelf[1].getData(cdCount);
 		for (int cnt = 0; cnt < cdCount; cnt++) {
 			cdTableData[cnt][0] = String.valueOf(cnt + 1); // No
-			cdTableData[cnt][1] = cdList.get(cnt).getTitle(); // 曲名
-			cdTableData[cnt][2] = cdList.get(cnt).getPerson(); // 歌手
+			cdTableData[cnt][1] = cds[cnt].getTitle(); // 曲名
+			cdTableData[cnt][2] = cds[cnt].getPerson(); // 歌手
 			// 表示はしないが、IDを削除用に設定する
-			cdTableData[cnt][3] = cdList.get(cnt).getId(); // ID
-		}
-
-		// 空棚の設定
-		for (int cnt = cdCount; cnt < CdShelf.MAX_CDS_SIZE; cnt++) {
-			cdTableData[cnt][0] = String.valueOf(cnt + 1); // No
-			cdTableData[cnt][1] = ""; // 曲名
-			cdTableData[cnt][2] = ""; // 歌手
-			cdTableData[cnt][3] = ""; // ID
+			cdTableData[cnt][3] = cds[cnt].getId(); // ID
 		}
 
 		// 情報作成
