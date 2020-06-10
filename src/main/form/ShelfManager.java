@@ -435,6 +435,7 @@ public class ShelfManager extends JPanel {
 
 			int index = bookTable.getSelectedRow();
 			if (index == -1) {
+				JOptionPane.showMessageDialog(null, "削除したい本を選択してください。");
 				return false;
 			}
 			// 設定されているIDを引数に削除する。
@@ -451,6 +452,7 @@ public class ShelfManager extends JPanel {
 
 			int index = cdTable.getSelectedRow();
 			if (index == -1) {
+				JOptionPane.showMessageDialog(null, "削除したいCDを選択してください。");
 				return false;
 			}
 			// 設定されているIDを引数に削除する。
