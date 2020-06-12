@@ -11,4 +11,6 @@ public abstract class Shelf {
     public abstract Production[] getData(int count);
 
     public abstract int countData();
+
+    public abstract String getText();
 }

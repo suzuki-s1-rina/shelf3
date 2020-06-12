@@ -32,19 +32,22 @@ public class ShelfManager extends JPanel {
 
 	private ShelfMain shelfMain = null; // メインクラス
 	private Shelf[] shelf = { new BookShelf(), new CdShelf() };
-	private String[] text = { "本", "CD" };
 
-	JTextField[] bookTexts = null; // 入力欄
-	JTextField[] cdTexts = null; // 入力欄
-	JTabbedPane tabPane = null; // タブパネル
+	private JTextField[] bookTexts = null; // 入力欄
+	private JTextField[] cdTexts = null; // 入力欄
+	private JTabbedPane tabPane = null; // タブパネル
 
-	DefaultTableModel bookModel = null; //情報作成
-	DefaultTableModel cdModel = null; //情報作成
+	private DefaultTableModel bookModel = null; //情報作成
+	private DefaultTableModel cdModel = null; //情報作成
 
-	JTable bookTable = null; // テーブル作成
-	JTable cdTable = null; // テーブル作成
+	private DefaultTableModel[] model = {bookModel, cdModel};
 
-	int tabPaneIndex = 0;
+	private JTable bookTable = null; // テーブル作成
+	private JTable cdTable = null; // テーブル作成
+
+	private JTable[] table = { bookTable, cdTable };
+
+	private int tabPaneIndex = 0;
 
 	private int ID_ROW_NUMBER = 3;
 
@@ -204,7 +207,7 @@ public class ShelfManager extends JPanel {
 		// 入力項目
 		JLabel[] bookLabels = new JLabel[2];
 		bookLabels[0] = new JLabel(Book.TITLE_CAPTION); // 題名
-		bookLabels[1] = new JLabel(Book.CREATER_CAPTION); // 著者
+		bookLabels[1] = new JLabel(Book.CREATER_CAPTION); // 作者
 
 		JLabel[] cdLabels = new JLabel[2];
 		cdLabels[0] = new JLabel(Cd.SONG_CAPTION); // 曲名
@@ -240,7 +243,7 @@ public class ShelfManager extends JPanel {
 		bookLayout.setAutoCreateGaps(true);
 		bookLayout.setAutoCreateContainerGaps(true);
 
-		// 題名と著者をグルーピング設定
+		// 題名と作者をグルーピング設定
 		GroupLayout.SequentialGroup bookHGroup = bookLayout.createSequentialGroup();
 		bookHGroup.addGroup(bookLayout.createParallelGroup()
 				.addComponent(bookLabels[0]).addComponent(bookLabels[1]));
@@ -285,7 +288,7 @@ public class ShelfManager extends JPanel {
 		cdLayout.setAutoCreateGaps(true);
 		cdLayout.setAutoCreateContainerGaps(true);
 
-		// 題名と著者をグルーピング設定
+		// 題名と作者をグルーピング設定
 		GroupLayout.SequentialGroup cdHGroup = cdLayout.createSequentialGroup();
 		cdHGroup.addGroup(cdLayout.createParallelGroup()
 				.addComponent(cdLabels[0]).addComponent(cdLabels[1]));
@@ -319,13 +322,13 @@ public class ShelfManager extends JPanel {
 	}
 
 	/*
-	 * 本追加
+	 * 追加
 	 */
 	private boolean add() {
 		tabPaneIndex = tabPane.getSelectedIndex();
 		// 本のタブが選択されている場合
 		if (tabPaneIndex == 0) {
-			// 題名、著者の入力チェック
+			// 題名、作者の入力チェック
 			boolean inputChk = true;
 			if (bookTexts[0].getText().length() > Book.TITLE_LENGTH) {
 				JOptionPane.showMessageDialog(null,
@@ -338,10 +341,10 @@ public class ShelfManager extends JPanel {
 
 			if (bookTexts[1].getText().length() > Book.CREATER_LENGTH) {
 				JOptionPane.showMessageDialog(null,
-						"著者は" + String.valueOf(Book.CREATER_LENGTH) + "文字以内で入力してください。");
+						"作者は" + String.valueOf(Book.CREATER_LENGTH) + "文字以内で入力してください。");
 				inputChk = false;
 			} else if (bookTexts[1].getText().length() == 0) {
-				JOptionPane.showMessageDialog(null, "著者が未入力です。");
+				JOptionPane.showMessageDialog(null, "作者が未入力です。");
 				inputChk = false;
 			}
 			if (inputChk) {
@@ -358,7 +361,7 @@ public class ShelfManager extends JPanel {
 					JOptionPane.showMessageDialog(null,
 							"登録に失敗しました。未入力の項目もしくは、" +
 									"題名は" + String.valueOf(Book.TITLE_LENGTH) + "文字以内" +
-									"著者は" + String.valueOf(Book.CREATER_LENGTH) + "文字以内で入力してください。");
+									"作者は" + String.valueOf(Book.CREATER_LENGTH) + "文字以内で入力してください。");
 				}
 			} else {
 				return false;
@@ -388,11 +391,11 @@ public class ShelfManager extends JPanel {
 			}
 
 			if (inputChk) {
-				// 本の生成
+				// CDの生成
 				Cd cd = new Cd();
 
 				if (cd.setTitle(cdTexts[0].getText()) && cd.setPerson(cdTexts[1].getText())) {
-					// 本棚への登録
+					// 棚への登録
 					if (shelf[1].addData(cd.getTitle(), cd.getPerson())) {
 						return true;
 					} else {
@@ -412,7 +415,7 @@ public class ShelfManager extends JPanel {
 	}
 
 	/*
-	 * 全ての本削除
+	 * 全削除
 	 */
 	private boolean deleteAll() {
 		tabPaneIndex = tabPane.getSelectedIndex();
@@ -420,52 +423,33 @@ public class ShelfManager extends JPanel {
 		if (shelf[tabPaneIndex].deleteAllData()) {
 			return true;
 		} else {
-			JOptionPane.showMessageDialog(null, "削除できる" + text[tabPaneIndex] + "はありません。");
+			JOptionPane.showMessageDialog(null, "削除できる" + shelf[tabPaneIndex].getText() + "はありません。");
 			return false;
 		}
 	}
 
 	/*
-	 * 一部の本削除
+	 * 一部削除
 	 */
 	private boolean deleteOne() {
 		tabPaneIndex = tabPane.getSelectedIndex();
-		// 選択されているパネルがbookの場合
-		if (tabPaneIndex == 0) {
+		int index = table[tabPaneIndex].getSelectedRow();
+		String id = "";
 
-			int index = bookTable.getSelectedRow();
-			if (index == -1) {
-				JOptionPane.showMessageDialog(null, "削除したい本を選択してください。");
-				return false;
-			}
-			// 設定されているIDを引数に削除する。
-			String id = bookModel.getValueAt(index, ID_ROW_NUMBER).toString();
-
-			if (shelf[0].deleteData(id)) {
-				return true;
-			} else {
-				JOptionPane.showMessageDialog(null, "削除できる本はありません。");
-				return false;
-			}
+		if (index == -1) {
+			JOptionPane.showMessageDialog(null, "削除したい" + shelf[tabPaneIndex].getText() + "を選択してください。");
+			return false;
 		}
-		if (tabPaneIndex == 1) {
 
-			int index = cdTable.getSelectedRow();
-			if (index == -1) {
-				JOptionPane.showMessageDialog(null, "削除したいCDを選択してください。");
-				return false;
-			}
-			// 設定されているIDを引数に削除する。
-			String id = cdModel.getValueAt(index, ID_ROW_NUMBER).toString();
+		id = model[tabPaneIndex].getValueAt(index, ID_ROW_NUMBER).toString();
 
-			if (shelf[1].deleteData(id)) {
-				return true;
-			} else {
-				JOptionPane.showMessageDialog(null, "削除できるCDはありません。");
-				return false;
-			}
+		// 設定されているIDを引数に削除する。
+		if (shelf[tabPaneIndex].deleteData(id)) {
+			return true;
+		} else {
+			JOptionPane.showMessageDialog(null, "削除できる" + shelf[tabPaneIndex].getText() + "はありません。");
+			return false;
 		}
-		return false;
 	}
 
 	/*
@@ -474,7 +458,7 @@ public class ShelfManager extends JPanel {
 	private void viewShelf() {
 
 		// テーブルの列名及び設定用の値作成
-		String[] bookColumnNames = { "No", "題名", "著者", "ID" };
+		String[] bookColumnNames = { "No", "題名", "作者", "ID" };
 		// 登録されている本の数
 		int bookCount = shelf[0].countData();
 		String bookTableData[][] = new String[bookCount][bookColumnNames.length];
@@ -484,21 +468,20 @@ public class ShelfManager extends JPanel {
 		for (int cnt = 0; cnt < bookCount; cnt++) {
 			bookTableData[cnt][0] = String.valueOf(cnt + 1); // No
 			bookTableData[cnt][1] = books[cnt].getTitle(); // 題名
-			bookTableData[cnt][2] = books[cnt].getPerson(); // 著者
+			bookTableData[cnt][2] = books[cnt].getPerson(); // 作者
 			// 表示はしないが、idを削除用に設定する
 			bookTableData[cnt][3] = books[cnt].getId(); // ID
 		}
 
 		// 情報作成
-		bookModel = new DefaultTableModel(bookTableData, bookColumnNames);
-
+		model[0] = new DefaultTableModel(bookTableData, bookColumnNames);
 		// テーブル作成
-		bookTable = new JTable(bookModel);
-		bookTable.setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
+		table[0] = new JTable(model[0]);
+		table[0].setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
 		// IDを設定するが、テーブルには表示しない
-		bookTable.removeColumn(bookTable.getColumn("ID"));
+		table[0].removeColumn(table[0].getColumn("ID"));
 		// スクロールパネルに設定してタブに追加
-		JScrollPane bookSp = new JScrollPane(bookTable);
+		JScrollPane bookSp = new JScrollPane(table[0]);
 		tabPane.add(Book.NAME, bookSp);
 
 		// テーブルの列名及び設定用の値作成
@@ -507,8 +490,6 @@ public class ShelfManager extends JPanel {
 		Production[] cds = null;
 		cdCount = shelf[1].countData();
 		String cdTableData[][] = new String[cdCount][cdColumnNames.length];
-
-		// 登録されているCDの数
 
 		// DBからCD棚のデータを取得
 		cds = shelf[1].getData(cdCount);
@@ -521,14 +502,14 @@ public class ShelfManager extends JPanel {
 		}
 
 		// 情報作成
-		cdModel = new DefaultTableModel(cdTableData, cdColumnNames);
+		model[1] = new DefaultTableModel(cdTableData, cdColumnNames);
 		// テーブル作成
-		cdTable = new JTable(cdModel);
-		cdTable.setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
+		table[1] = new JTable(model[1]);
+		table[1].setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
 		// IDを設定するが、テーブルには表示しない
-		cdTable.removeColumn(cdTable.getColumn("ID"));
+		table[1].removeColumn(table[1].getColumn("ID"));
 		// スクロールパネルに設定してタブに追加
-		JScrollPane cdSp = new JScrollPane(cdTable);
+		JScrollPane cdSp = new JScrollPane(table[1]);
 		tabPane.add(Cd.NAME, cdSp);
 
 		tabPane.setSelectedIndex(tabPaneIndex);

@@ -40,15 +40,16 @@ public class ConnectMySQL {
 	/*
 	 * データを棚から削除するメソッド
 	 */
-	public static boolean deleteData(String sql) {
+	public static boolean deleteData(String sql, String id) {
 		boolean connect_ok = false;
 		try {
 			//データベース接続
 			Connection connection = DriverManager.getConnection(URL, USERNAME, PASSWORD);
 			//データ登録
-			Statement statement = connection.createStatement();
-			statement.executeUpdate(sql);
-			statement.close();
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setString(1, id);
+            ps.executeUpdate();
+            ps.close();
 			//データベースのクローズ
 			connection.close();
 			connect_ok = true;
